@@ -10,6 +10,9 @@ from pycryptoclients.response import CCAPIResponseParser, CCAPIResponse
 from pycryptoclients.utils import ENCODING
 
 
+__all__ = ('APIMethod', 'BaseCCAPI', 'CCAPI', 'CCRPC')
+
+
 try:
     import cachecontrol
     cache_adapter = cachecontrol.CacheControlAdapter()
@@ -26,18 +29,12 @@ class APIMethod(object):
         self.parser = parser
 
 
-class CCAPI(object):
-    """
-    Base class for implementing Stocks Exchange API
-    """
-
+class BaseCCAPI(object):
     SAVING_TIME_KEY = 'saving_time'
 
-    def __init__(self, ssl_enabled: bool=True, api_key: str='', api_secret: str='', api_methods: dict=None):
-        super(CCAPI, self).__init__()
+    def __init__(self, ssl_enabled: bool=True, api_methods: dict=None):
+        super(BaseCCAPI, self).__init__()
         self.ssl_enabled = ssl_enabled
-        self._api_key = bytes(api_key, encoding=ENCODING)
-        self._api_secret = bytes(api_secret, encoding=ENCODING)
         self._init_default_api_methods()
         if api_methods:
             self.update_api_methods(api_methods)
@@ -47,6 +44,9 @@ class CCAPI(object):
 
     def update_api_methods(self, api_methods: dict):
         self.api_methods.update(api_methods)
+
+    def get_available_methods(self):
+        return self.api_methods.keys()
 
     def _query(self, req: requests.Request) -> requests.Response:
         sess = requests.Session()
@@ -58,17 +58,6 @@ class CCAPI(object):
         prepared_request = req.prepare()
         response = sess.send(prepared_request, verify=self.ssl_enabled)
         response.raise_for_status()
-        return response
-
-    def query(self, parser: Type[CCAPIResponseParser], req: Type[CCAPIRequest],
-              **kwargs) -> CCAPIResponse:
-        _req = req(**kwargs)
-
-        if any(k in kwargs for k in (self.SAVING_TIME_KEY, 'with_saving')):
-            response = self._query_with_saving(parser, _req, **kwargs)
-        else:
-            response = parser.parse(self._query(_req))
-
         return response
 
     def _query_with_saving(self, parser: Type[CCAPIResponseParser],
@@ -102,6 +91,28 @@ class CCAPI(object):
 
             return data
 
+    def query(self, parser: Type[CCAPIResponseParser], req: Type[CCAPIRequest],
+              **kwargs) -> CCAPIResponse:
+        _req = req(**kwargs)
+
+        if any(k in kwargs for k in (self.SAVING_TIME_KEY, 'with_saving')):
+            response = self._query_with_saving(parser, _req, **kwargs)
+        else:
+            response = parser.parse(self._query(_req))
+
+        return response
+
+
+class CCAPI(BaseCCAPI):
+    """
+    Client for cryptocurrency markets/exchanges
+    """
+
+    def __init__(self, ssl_enabled: bool=True, api_key: str='', api_secret: str='', api_methods: dict=None):
+        super(CCAPI, self).__init__(ssl_enabled, api_methods)
+        self._api_key = bytes(api_key, encoding=ENCODING)
+        self._api_secret = bytes(api_secret, encoding=ENCODING)
+
     def call(self, method: str, **kwargs) -> CCAPIResponse:
         _method = self.api_methods.get(method)
 
@@ -116,5 +127,29 @@ class CCAPI(object):
 
         return self.query(_method.parser, _method.request, **kwargs)
 
-    def get_available_methods(self):
-        return self.api_methods.keys()
+
+class CCRPC(BaseCCAPI):
+    """
+    RPC client for cryptowallets.
+    """
+
+    def __init__(self, ssl_enabled: bool=True, rpc_user: str='', rpc_password: str='', api_methods: dict=None,
+                 rpc_url: str=''):
+        super(CCRPC, self).__init__(ssl_enabled, api_methods)
+        self._rpc_user = rpc_user
+        self._rpc_password = rpc_password
+        self._rpc_url = rpc_url
+
+    def call(self, method: str, **kwargs) -> CCAPIResponse:
+        _method = self.api_methods.get(method)
+
+        if not _method:
+            raise CCAPINoMethodException(method=method)
+
+        kwargs.update({
+            'rpc_user': self._rpc_user,
+            'rpc_password': self._rpc_password,
+            'base_url': self._rpc_url
+        })
+
+        return self.query(_method.parser, _method.request, **kwargs)
