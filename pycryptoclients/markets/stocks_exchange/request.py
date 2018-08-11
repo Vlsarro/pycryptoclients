@@ -4,15 +4,18 @@ from pycryptoclients.utils import set_not_none_dict_kwargs
 from pycryptoclients.markets.stocks_exchange import ORDER_STATUS
 
 
-__all__ = ('TickerRequest', 'PricesRequest', 'CurrenciesRequest', 'MarketsRequest',
+__all__ = ('TickerRequest', 'PricesRequest', 'CurrenciesRequest', 'MarketsRequest', 'STOCKS_EXCHANGE_BASE_URL',
            'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest', 'DepositRequest',
            'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest', 'WithdrawRequest',
            'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest', 'GenerateWalletsRequest',
            'TicketRequest', 'GetTicketsRequest', 'ReplyTicketRequest')
 
 
+STOCKS_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
+
+
 class StocksExchangeRequest(CCAPIRequest):
-    default_base_url = 'https://app.stocks.exchange/api2/{method}'
+    default_base_url = STOCKS_EXCHANGE_BASE_URL
 
 
 ###################################################################
