@@ -1,7 +1,11 @@
-from pycryptoclients.api import CCRPC
+from pycryptoclients.api import CCRPC, APIMethod
+from pycryptoclients.response import CCAPIResponseParser
+from pycryptoclients.wallets.dash.request import GetInfoRequest
 
 
-DEFAULT_RPC_METHODS = ()
+DEFAULT_RPC_METHODS = (
+    APIMethod('getinfo', GetInfoRequest, CCAPIResponseParser),
+)
 
 
 class DashWalletRPCClient(CCRPC):
