@@ -5,7 +5,7 @@ import warnings
 from typing import Type
 
 from pycryptoclients.exc import CCAPINoMethodException
-from pycryptoclients.request import CCAPIRequest
+from pycryptoclients.request import BaseCCRequest
 from pycryptoclients.response import CCAPIResponseParser, CCAPIResponse
 from pycryptoclients.utils import ENCODING
 
@@ -23,7 +23,7 @@ except ImportError:
 
 class APIMethod(object):
 
-    def __init__(self, name: str, request: Type[CCAPIRequest], parser: Type[CCAPIResponseParser]):
+    def __init__(self, name: str, request: Type[BaseCCRequest], parser: Type[CCAPIResponseParser]):
         self.name = name
         self.request = request
         self.parser = parser
@@ -61,7 +61,7 @@ class BaseCCAPI(object):
         return response
 
     def _query_with_saving(self, parser: Type[CCAPIResponseParser],
-                           req: CCAPIRequest, **kwargs) -> CCAPIResponse:
+                           req: BaseCCRequest, **kwargs) -> CCAPIResponse:
         """
         Method enables user to save parsed response for specified time and prevents additional requests in
         this time interval. This method is convenient for ban avoidance in case of too frequent requests to API.
@@ -91,7 +91,7 @@ class BaseCCAPI(object):
 
             return data
 
-    def query(self, parser: Type[CCAPIResponseParser], req: Type[CCAPIRequest],
+    def query(self, parser: Type[CCAPIResponseParser], req: Type[BaseCCRequest],
               **kwargs) -> CCAPIResponse:
         _req = req(**kwargs)
 
