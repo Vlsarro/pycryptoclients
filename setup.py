@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os.path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(fname):
@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name='pycryptoclients',
-    version='1.0.0',
+    version='1.0.1',
     description='Client library for cryptocurrency markets and interfaces of cryptowallets',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
@@ -23,7 +23,7 @@ setup(
     tests_require=[
         'requests-mock>=1.5.0'
     ],
-    packages=['pycryptoclients'],
+    packages=find_packages(),
     python_requires='>=3.5',
     classifiers=[
         'Intended Audience :: Developers',
