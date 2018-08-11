@@ -1,7 +1,7 @@
 from pycryptoclients.auth import HmacAuth
 from pycryptoclients.request import CCAPIRequest
+from pycryptoclients.utils import set_not_none_dict_kwargs
 from pycryptoclients.markets.stocks_exchange import ORDER_STATUS
-from pycryptoclients.markets.stocks_exchange.utils import set_not_none_dict_kwargs
 
 
 __all__ = ('TickerRequest', 'PricesRequest', 'CurrenciesRequest', 'MarketsRequest',
