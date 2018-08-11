@@ -24,5 +24,5 @@ class CCAPIResponseParser(object):
             return CCAPIResponse(data)
 
     @classmethod
-    def check_for_errors(cls, data: dict):
+    def check_for_errors(cls, data):
         warnings.warn('{} has no error checking'.format(cls.__class__.__name__))
