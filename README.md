@@ -1,7 +1,12 @@
 # pycryptoclients
-Library which contains python clients for cryptocurrency markets and crypto wallets. Currently available exchanges:
+Library which contains python clients for cryptocurrency markets and crypto wallets.
+Available exchanges:
 
-* https://www.stocks.exchange/
+* stocks.exchange (https://www.stocks.exchange/)
+
+Available RPC clients for wallets:
+
+* Dash (https://www.dash.org/wallets/)
 
 ## Installation
 
@@ -24,7 +29,7 @@ from pycryptoclients.markets.stocks_exchange.api import StocksExchangeAPI
 api = StocksExchangeAPI(api_key='apikey', api_secret='apisecret')
 account_info = api.call('get_account_info')
 ```
-If you want add some new methods to API object or override previous ones then you have to create custom request which inherits from ```StocksExchangeRequest```, example:
+If you want to add some new methods to API object or override previous ones then you have to create custom request which inherits from ```StocksExchangeRequest```, example:
 
 ```python
 from pycryptoclients.markets.stocks_exchange.api import StocksExchangeAPI, APIMethod
