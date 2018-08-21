@@ -40,6 +40,7 @@ class BaseCCAPI(object):
             self.update_api_methods(api_methods)
 
     def _init_default_api_methods(self):
+        # TODO: think about making methods available via setattr()
         self.api_methods = {}
 
     def update_api_methods(self, api_methods: dict):
@@ -69,6 +70,8 @@ class BaseCCAPI(object):
         Reentrant lock ensures thread safety of method.
         """
         unix_timestamp_now = time.time()
+
+        # TODO: add <saving_id> for enabling data access for several clients at once, think about data storing backends
 
         saved_data_attr_name = '{}_data'.format(req.api_method)
         record_time_attr_name = '{}_time'.format(req.api_method)
@@ -140,7 +143,7 @@ class CCRPC(BaseCCAPI):
         self._rpc_password = rpc_password
         self._rpc_url = rpc_url
 
-    def call(self, method: str, **kwargs) -> CCAPIResponse:
+    def call(self, method: str, *args, **kwargs) -> CCAPIResponse:
         _method = self.api_methods.get(method)
 
         if not _method:
@@ -149,7 +152,10 @@ class CCRPC(BaseCCAPI):
         kwargs.update({
             'rpc_user': self._rpc_user,
             'rpc_password': self._rpc_password,
-            'base_url': self._rpc_url
+            'base_url': self._rpc_url,
+            'params': args,
+            'args_num': _method.args_num,
+            'method_name': method
         })
 
         return self.query(_method.parser, _method.request, **kwargs)
