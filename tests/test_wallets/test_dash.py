@@ -48,8 +48,7 @@ class TestDashWalletRPCClient(unittest.TestCase):
     def test_signmessage(self, m):
         m.register_uri('POST', TEST_URL, text=DASH_GETINFO_RESPONSE)
         method_name = 'signmessage'
-        methods = self.client.get_available_methods()
-        resp = self.client.call(method_name, 234, 455, 4565)
+        resp = self.client.call(method_name, (234, 455, 4565))
 
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
@@ -70,6 +69,7 @@ class TestDashWalletRPCClient(unittest.TestCase):
         data = resp.data
         self.assertIsInstance(data, dict)
         self.assertDictEqual(json.loads(DASH_GETINFO_RESPONSE)['result'], data)
+
 
 if __name__ == '__main__':
     unittest.main()

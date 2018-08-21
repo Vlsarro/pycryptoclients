@@ -73,17 +73,20 @@ class TestCCAPI(CCAPITestCase):
         with patch('time.time') as time_mock:
             time_mock.return_value = 130.0
 
-            data = self.api.query(CCAPIResponseParser, TestRequest, with_saving=True)
+            saving_id = 'test'
+            saving_time = 60.0
+
+            data = self.api.query(CCAPIResponseParser, TestRequest, saving_id, saving_time)
             self.assertEqual(m.call_count, 2)
             self.assertTrue(data)
 
             time_mock.return_value = 140.0
-            data = self.api.query(CCAPIResponseParser, TestRequest, saving_time=60.0)
+            data = self.api.query(CCAPIResponseParser, TestRequest, saving_id, saving_time)
             self.assertEqual(m.call_count, 2)  # no call because time has not passed yet
             self.assertTrue(data)
 
             # change threshold to 5 seconds
-            data = self.api.query(CCAPIResponseParser, TestRequest, saving_time=5.0)
+            data = self.api.query(CCAPIResponseParser, TestRequest, saving_id, 5.0)
             self.assertEqual(m.call_count, 3)
             self.assertTrue(data)
 
@@ -117,22 +120,25 @@ class TestCCAPI(CCAPITestCase):
         m.register_uri('GET', url, text=test_response)
         time_mock.return_value = 130.0
 
-        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest()).data
+        saving_id = 'test'
+        saving_time = 60.0
+
+        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id, saving_time).data
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
         self.assertTrue(data)
 
         time_mock.return_value = 140.0
-        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest()).data
+        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id, saving_time).data
         self.assertEqual(m.call_count, 1)  # there was no call to API, use saved response
         self.assertTrue(data)
 
         time_mock.return_value = 189.9
-        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest()).data
+        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id, saving_time).data
         self.assertEqual(m.call_count, 1)  # there was no call to API, use saved response
         self.assertTrue(data)
 
         time_mock.return_value = 191.0
-        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest()).data
+        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id, saving_time).data
         self.assertEqual(m.call_count, 2)
         self.assertTrue(data)
