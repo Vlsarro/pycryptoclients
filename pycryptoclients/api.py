@@ -38,7 +38,7 @@ class BaseCCAPI(object):
         super(BaseCCAPI, self).__init__()
         self._lock = threading.RLock()
         self._saved_data = {}
-        self.ssl_enabled = ssl_enabled
+        self._ssl_enabled = ssl_enabled
         self._init_default_api_methods()
         if api_methods:
             self.update_api_methods(api_methods)
@@ -60,7 +60,7 @@ class BaseCCAPI(object):
             sess.mount('http://', cache_adapter)
 
         prepared_request = req.prepare()
-        response = sess.send(prepared_request, verify=self.ssl_enabled)
+        response = sess.send(prepared_request, verify=self._ssl_enabled)
         response.raise_for_status()
         return response
 
