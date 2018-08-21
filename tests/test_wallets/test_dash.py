@@ -1,3 +1,4 @@
+import json
 import unittest
 import requests_mock
 
@@ -19,8 +20,9 @@ class TestDashWalletRPCClient(unittest.TestCase):
     @requests_mock.Mocker()
     def test_getinfo(self, m):
         m.register_uri('POST', TEST_URL, text=DASH_GETINFO_RESPONSE)
+        method_name = 'getinfo'
 
-        resp = self.client.call('getinfo')
+        resp = self.client.call(method_name)
 
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
@@ -28,6 +30,9 @@ class TestDashWalletRPCClient(unittest.TestCase):
         req = m.request_history[0]
         self.assertEqual(req.method, 'POST')
         self.assertEqual(req.url, TEST_URL)
+        req_body = req.json()
+        self.assertEqual(req_body['method'], method_name)
+        self.assertEqual(req_body['params'], [])
 
         req_headers = req.headers
         self.assertEqual(req_headers['User-Agent'], DEFAULT_USER_AGENT)
@@ -37,9 +42,34 @@ class TestDashWalletRPCClient(unittest.TestCase):
 
         data = resp.data
         self.assertIsInstance(data, dict)
-        self.assertIsInstance(data['result'], dict)
-        self.assertIsNone(data['error'])
+        self.assertDictEqual(json.loads(DASH_GETINFO_RESPONSE)['result'], data)
 
+    @requests_mock.Mocker()
+    def test_signmessage(self, m):
+        m.register_uri('POST', TEST_URL, text=DASH_GETINFO_RESPONSE)
+        method_name = 'signmessage'
+        methods = self.client.get_available_methods()
+        resp = self.client.call(method_name, 234, 455, 4565)
+
+        self.assertTrue(m.called)
+        self.assertEqual(m.call_count, 1)
+
+        req = m.request_history[0]
+        self.assertEqual(req.method, 'POST')
+        self.assertEqual(req.url, TEST_URL)
+        req_body = req.json()
+        self.assertEqual(req_body['method'], method_name)
+        self.assertEqual(req_body['params'], [234, 455])
+
+        req_headers = req.headers
+        self.assertEqual(req_headers['User-Agent'], DEFAULT_USER_AGENT)
+        self.assertEqual(req_headers['Content-Type'], 'text/plain')
+
+        self.assertIsInstance(resp, CCAPIResponse)
+
+        data = resp.data
+        self.assertIsInstance(data, dict)
+        self.assertDictEqual(json.loads(DASH_GETINFO_RESPONSE)['result'], data)
 
 if __name__ == '__main__':
     unittest.main()
