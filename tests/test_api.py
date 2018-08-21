@@ -1,6 +1,7 @@
 import json
 import requests
 import requests_mock
+import unittest
 from unittest.mock import patch
 
 from pycryptoclients.api import CCAPI, APIMethod
@@ -123,10 +124,15 @@ class TestCCAPI(CCAPITestCase):
         saving_id = 'test'
         saving_time = 60.0
 
+        self.assertDictEqual(self.api._saved_data, {})
+
         data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id, saving_time).data
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
         self.assertTrue(data)
+
+        self.assertIn(saving_id, self.api._saved_data)
+        self.assertIn(method_name, self.api._saved_data[saving_id])
 
         time_mock.return_value = 140.0
         data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id, saving_time).data
@@ -142,3 +148,16 @@ class TestCCAPI(CCAPITestCase):
         data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id, saving_time).data
         self.assertEqual(m.call_count, 2)
         self.assertTrue(data)
+
+        time_mock.return_value = 200
+        saving_id_2 = 'test_2'
+        data = self.api._query_with_saving(CCAPIResponseParser, TestRequest(), saving_id_2, saving_time).data
+        self.assertEqual(m.call_count, 3)
+        self.assertTrue(data)
+
+        self.assertIn(saving_id_2, self.api._saved_data)
+        self.assertIn(method_name, self.api._saved_data[saving_id_2])
+
+
+if __name__ == '__main__':
+    unittest.main()
