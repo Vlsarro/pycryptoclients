@@ -37,7 +37,7 @@ class BaseCCAPI(object):
     def __init__(self, ssl_enabled: bool=True, api_methods: dict=None):
         super(BaseCCAPI, self).__init__()
         self._lock = threading.RLock()
-        self.saved_data = {}
+        self._saved_data = {}
         self.ssl_enabled = ssl_enabled
         self._init_default_api_methods()
         if api_methods:
@@ -74,10 +74,10 @@ class BaseCCAPI(object):
             }
 
             if has_data_by_id:
-                self.saved_data[saving_id][req.api_method] = response
+                self._saved_data[saving_id][req.api_method] = response
 
             else:
-                self.saved_data[saving_id] = {
+                self._saved_data[saving_id] = {
                     req.api_method: response
                 }
 
@@ -99,7 +99,7 @@ class BaseCCAPI(object):
 
             if saving_time:
                 # get saved values from previous requests if period of saving is set
-                saved_data_by_id = self.saved_data.get(saving_id)
+                saved_data_by_id = self._saved_data.get(saving_id)
 
                 if saved_data_by_id:
                     response = saved_data_by_id.get(req.api_method)
