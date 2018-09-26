@@ -14,11 +14,12 @@ class DashRPCResponseParser(CCAPIResponseParser):
         return cc_resp
 
     @classmethod
-    def check_for_errors(cls, data):
-        error = data.get('error')
-        if error:
-            raise CCAPIDataException(msg=error)
+    def check_for_errors(cls, data: dict):
+        if data and isinstance(data, dict):
+            error = data.get('error')
+            if error:
+                raise CCAPIDataException(msg=error)
 
-        result_errors = data.get('errors')
-        if result_errors:
-            raise CCAPIDataException(msg=result_errors)
+            result_errors = data.get('errors')
+            if result_errors:
+                raise CCAPIDataException(msg=result_errors)
