@@ -131,6 +131,9 @@ class BaseCCAPI(object):
         else:
             response = parser.parse(self._query(_req))
 
+        if not isinstance(response, CCAPIResponse):
+            raise TypeError('Response parser must return object of CCAPIResponse type')
+
         return response
 
 
